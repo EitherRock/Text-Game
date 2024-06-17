@@ -51,6 +51,7 @@ def game_setup():
             "description": "A dark, damp cave",
             "items": [{'name': "Stick", 'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Gold Coin",'searchable': True}],
             "enemies": ["Rat", "Bat"],
+            "connected_locations": ["Forest"],
             "commands": ["sleep"]
         },
         "Forest": {
@@ -58,12 +59,15 @@ def game_setup():
             "description": "A dense forest",
             "items": [{'name': "Bow", 'searchable': True}],
             "enemies": ["Wolf", "Bear"],
+            "connected_locations": ["Cave", "Town"],
             "commands": []
+
         },
         "Town": {
             "name": "Town",
             "description": "A bustling town",
-            "locations": [{'name': "Tyrone and Bryn's Books and Things", "items": ["Book", "Potion"], "npcs": ["Tyrone", "Bryn"]}, {'name': "General Store", "items": ["Sword", "Shield"], "npcs": ["Shopkeeper"]}],
+            # "connected_locations": [{'name': "Tyrone and Bryn's Books and Things", "items": ["Book", "Potion"], "npcs": ["Tyrone", "Bryn"], "commands":[]}, {'name': "General Store", "items": ["Sword", "Shield"], "npcs": ["Shopkeeper"]}],
+            "connected_locations": ["Forest", "General Store", "Tyrone and Bryn's Books and Things"],
             "items": [],
             "enemies": [],
             "commands": []

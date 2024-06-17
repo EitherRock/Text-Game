@@ -26,6 +26,12 @@ class Player:
             clear_terminal()
             print("The location you entered does not exist.")
             return
+        
+        if location not in self.location['connected_locations']:
+            clear_terminal()
+            print(f"You cannot travel to {location} from {self.location['name']}.")
+            return
+        
         self.location = globals.locations[location]
         print(self.location)
 
