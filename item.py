@@ -1,8 +1,8 @@
 class Item:
-    def __init__(self, name, searchable, description, price=None, quantity=None, commands=None):
+    def __init__(self, name, description, health=None, price=None, quantity=None, inventory=None, commands=None):
         self.name = name
-        self.searchable = searchable
         self.description = description
         self.price = price
         self.quantity = quantity
+        self.inventory = inventory
         self.commands = commands
