@@ -1,3 +1,5 @@
+import random
+
 class Location:
     def __init__(self, name, description, items=None, enemies=None, npcs=None, commands=None, connected_locations=None):
         self.name = name
@@ -7,6 +9,21 @@ class Location:
         self.npcs = npcs
         self.commands = commands
         self.connected_locations = connected_locations
+    
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return self.name
+    
+    def enemy_encounter(self):
+        # Check for enemy encounters
+        if self.enemies:
+            if random.random() < 0.5:  # 50% chance of an enemy encounter
+                enemy = random.choice(self.enemies)
+                print(f"You encounter a {enemy.name}!")
+                
+        return None
 
 
 class ShopLocation(Location):

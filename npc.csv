@@ -1,0 +1,11 @@
+Name,Description,Location,Health,Commands,Items,Attitude,Status,Relationship Status,Relationships,Role,Dialogue Tree
+NPC3,A hostile NPC.,Cave,10,give item,Potion,Friendly,Dead,Single,Friend,Merchant,What do you want?
+NPC2,A friendly NPC.,Cave,30,give item,Potion,Neutral,Dead,Single,Friend,Guard,Go away!
+NPC1,A friendly NPC.,Cave,10,attack,Potion,Friendly,Alive,Married,Neutral,Guard,What do you want?
+NPC2,A friendly NPC.,Castle,30,attack,Potion,Hostile,Alive,Married,Neutral,Merchant,What do you want?
+NPC2,A neutral NPC.,Cave,30,attack,Sword,Hostile,Alive,Single,Friend,Merchant,Go away!
+NPC2,A hostile NPC.,Castle,20,talk,Shield,Hostile,Dead,Complicated,Friend,Villager,What do you want?
+NPC3,A friendly NPC.,Forest,20,attack,Shield,Hostile,Alive,Married,Friend,Guard,What do you want?
+NPC1,A friendly NPC.,Castle,20,attack,Shield,Neutral,Dead,Married,Friend,Merchant,Hello!
+NPC1,A neutral NPC.,Forest,30,give item,Potion,Hostile,Dead,Single,Neutral,Guard,Go away!
+NPC3,A neutral NPC.,Cave,10,talk,Sword,Neutral,Alive,Complicated,Neutral,Villager,Go away!

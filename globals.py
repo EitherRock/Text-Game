@@ -4,3 +4,4 @@ commands = {}
 locations = {}
 game_display = None
 log = None
+npcs = {}

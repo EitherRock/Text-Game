@@ -1,3 +1,6 @@
+import globals
+from system import util
+
 class Command:
     def __init__(self, name=None, description=None, func=None):
         self.name = name
@@ -26,7 +29,7 @@ class TravelCommand(Command):
 
 class FightCommand(Command):
     def __init__(self):
-        super().__init__("Travel", "Travel to a different location")
+        super().__init__("Fight", "Fight an enemy", self.execute)
     def execute(self, player, command_args):
         player.fight(command_args)
 
@@ -60,3 +63,24 @@ class InfoCommand(Command):
     def execute(self, player, *args, **kwargs):
         self.func(player, *args, **kwargs)
 
+class TalkCommand(Command):
+    def __init__(self):
+        super().__init__("Talk", "Talk to an NPC", self.execute)
+    def execute(self, player, *args, **kwargs):
+        if not args:
+            util.clear_terminal()
+            print("You must specify an NPC to talk to.")
+            return
+        npc_name = args[0]
+        if player.location.name in globals.locations:
+            location = globals.locations[player.location.name]
+            npc = next((npc for npc in location.npcs if npc.name == npc_name), None)
+            if npc is not None:
+                util.clear_terminal()
+                npc.talk('start')
+            else:
+                util.clear_terminal()
+                print(f"No NPC named {npc_name} found.")
+        else:
+            util.clear_terminal()
+            print("No NPCs in this location.")
