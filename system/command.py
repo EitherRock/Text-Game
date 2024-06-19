@@ -29,7 +29,7 @@ class TravelCommand(Command):
 
 class FightCommand(Command):
     def __init__(self):
-        super().__init__("Travel", "Travel to a different location")
+        super().__init__("Fight", "Fight an enemy", self.execute)
     def execute(self, player, command_args):
         player.fight(command_args)
 
@@ -72,9 +72,9 @@ class TalkCommand(Command):
             print("You must specify an NPC to talk to.")
             return
         npc_name = args[0]
-        if player.location['name'] in globals.locations:
-            location = globals.locations[player.location['name']]
-            npc = next((npc for npc in location['npcs'] if npc.name == npc_name), None)
+        if player.location.name in globals.locations:
+            location = globals.locations[player.location.name]
+            npc = next((npc for npc in location.npcs if npc.name == npc_name), None)
             if npc is not None:
                 util.clear_terminal()
                 npc.talk('start')

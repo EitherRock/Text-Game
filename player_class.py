@@ -11,23 +11,24 @@ class Player:
         self.max_stamina = max_stamina
         self.stamina = self.max_stamina
         self.mana = mana
-        self.xp = xp
+        self.experience = xp
         self.location = None
         self.previous_location = None
         self.inventory = []
         self.days = 0
-        self.statuses = ["Full Health", "Full Stamina"]
+        self.statuses = ["Alive", "Full Stamina", "Full Health"]
+        self.quest_log = []
 
     def travel(self, player, *args, **kwargs):
         if len(args) == 0:
             clear_terminal()
             print("You must specify a location to travel to.")
             return
+        
         fly = False
         if 'fly' in args:
             fly = True
             print("You fly")
-        
         
         self.previous_location = self.location
         location = args[0]
@@ -37,36 +38,38 @@ class Player:
             return
         
         if fly:
-                self.location = globals.locations[location]
-                clear_terminal()
-                print(f"{self.name} flew from {self.previous_location['name']} to {self.location['name']}")
-                globals.log.log(f"{self.name} flew from {self.previous_location['name']} to {self.location['name']}")
-                
-        elif location not in self.location['connected_locations']:
+            self.location = globals.locations[location]
             clear_terminal()
-            print(f"You cannot travel to {location} from {self.location['name']}.")
+            print(f"{self.name} flew from {self.previous_location.name} to {self.location.name}")
+            globals.log.log(f"{self.name} flew from {self.previous_location.name} to {self.location.name}")
+
+            self.location.enemy_encounter()
+                
+        elif location not in self.location.connected_locations:
+            clear_terminal()
+            print(f"You cannot travel to {location} from {self.location.name}.")
             return
         else:
             self.location = globals.locations[location]
             clear_terminal()
-            print(f"{self.name} traveled from {self.previous_location['name']} to {self.location['name']}")
-            globals.log.log(f"{self.name} traveled from {self.previous_location['name']} to {self.location['name']}")
+            print(f"{self.name} traveled from {self.previous_location.name} to {self.location.name}")
+            globals.log.log(f"{self.name} traveled from {self.previous_location.name} to {self.location.name}")
 
         # Remove the commands of the previous location
-        if self.previous_location['npcs']:
+        if self.previous_location.npcs:
             del globals.commands['talk']
 
         if self.previous_location is not None:
-            if 'commands' in self.previous_location:
-                for command in self.previous_location['commands']:
+            if self.previous_location.commands:
+                for command in self.previous_location.commands:
                     del globals.commands[command]
         
         # Add the commands of the new location
-        if self.location['npcs']:
+        if self.location.npcs:
             globals.commands['talk'] = globals.all_commands['talk']
 
-        if 'commands' in self.location:
-            for command in self.location['commands']:
+        if self.location.commands:
+            for command in self.location.commands:
                 if command not in globals.commands:
                     globals.commands[command] = globals.all_commands[command]
         
@@ -156,21 +159,25 @@ class Player:
 
     def search(self, player, *args, **kwargs):
         # TODO: Implement search logic, add extra parameters if searching storage, npcs, etc.
-        searchable_items = [item for item in player.location['items'] if item['searchable']]
+        searchable_items = [item for item in player.location.inventory if item['searchable']]
         
         if len(searchable_items) == 0:
+            clear_terminal()
             print("There are no items to search for in this location.")
             return
         
         # Use a randomizer to determine if the search is successful
         if random.random() < 0.5:  # 50% chance of success
+            clear_terminal()
             print("Your search was unsuccessful.")
             return
 
         # Randomly pick an item from the searchable items
         item = random.choice(searchable_items)
         self.inventory.append(item)
+        clear_terminal()
         print(f"You found a {item['name']}!")
+        globals.log.log(f"{player.name} found a {item['name']}!")
     
     def sleep(self, player):
         # Rest and recover health and stamina
@@ -190,12 +197,13 @@ class Player:
                 globals.game_display.display_location_info()
             elif args[0] == "npc":
                 if len(args) < 2:
+                    clear_terminal()
                     print("You must specify an NPC to display information.")
                     return
                 npc_name = args[1].lower()
                 npc = globals.npcs[npc_name]
-                location = globals.locations[player.location['name']]
-                npc = next((npc for npc in location['npcs'] if npc.name == npc_name), None)
+                location = globals.locations[player.location.name]
+                npc = next((npc for npc in location.npcs if npc.name.lower() == npc_name), None)
                 if npc is not None:
                     globals.game_display.display_npc_info(npc)
                 else:

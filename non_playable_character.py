@@ -1,3 +1,5 @@
+from system import util
+
 class NPC:
     def __init__(self, name, description, location, health, role, attitude, status, commands=None, items=None, relationship_status=None, relationships=None, dialogue_tree=None):
         self.name = name
@@ -5,7 +7,7 @@ class NPC:
         self.location = location
         self.health = health
         self.commands = commands
-        self.items = items
+        self.inventory = items
         self.attitude = attitude
         self.status = status
         self.relationship_status = relationship_status
@@ -20,17 +22,18 @@ class NPC:
         return self.name
     
     def talk(self, dialogue_key):
-        # if dialogue_key == 'check_reputation':
-        #     if self.attitude == 'good':
-        #         next_dialogue = 'elder'
-        #     elif self.attitude == 'bad':
-        #         next_dialogue = 'no_audience'
-        #     else:
-        #         next_dialogue = 'neutral_reception'
-        #     self.talk(next_dialogue)
-        #     return
+        if dialogue_key == 'check_reputation':
+            if self.attitude == 'good':
+                next_dialogue = 'elder'
+            elif self.attitude == 'bad':
+                next_dialogue = 'no_audience'
+            else:
+                next_dialogue = 'neutral_reception'
+            self.talk(next_dialogue)
+            return
 
         current_dialogue = self.dialogue_tree[dialogue_key]
+        util.clear_terminal()
         print(current_dialogue['text'])
 
         if current_dialogue['responses']:
@@ -47,4 +50,13 @@ class NPC:
             self.talk(next_node)
         else:
             print("End of conversation.")
+
+
+class Enemy(NPC):
+    def __init__(self, name, description, location, health, role, status, commands=None, items=None, relationships=None, dialogue_tree=None):
+        super().__init__(name, description, location, health, role, status, commands, items, relationships, dialogue_tree)
+        self.attitude = 'hostile'
+        self.experience = 10
+        self.abilities = ['attack', 'defend', 'flee']
+    
     

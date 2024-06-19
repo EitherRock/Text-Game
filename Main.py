@@ -1,6 +1,7 @@
 import globals
 from player_class import Player
-from non_playable_character import NPC
+from non_playable_character import NPC, Enemy
+from location import Location
 from system import command, util, logger, display
 
 dialogue_tree = {
@@ -99,38 +100,42 @@ def game_setup():
         "sleep": command.SleepCommand(globals.player)
     }
     globals.npcs = {
-        "bryn": NPC(name='Bryn', description='A mystical lady', location='Town', health=10, role='Shopkeeper', attitude='friendly', status='alive', dialogue_tree=dialogue_tree), 
+        "bryn": NPC(name='Bryn', description='A mystical lady', location='Town', health=10, role='Shopkeeper', attitude='friendly', status='alive', dialogue_tree=dialogue_tree),
+        "tyrone": NPC(name='Tyrone', description='A wise crow', location='Town', health=10, role='Sage', attitude='friendly', status='alive', dialogue_tree=dialogue_tree),
+        "rat": Enemy(name='Rat', description='A small rat', location='Cave', health=5, role='Enemy', status='alive'),
     }
     globals.locations = {
-        "Cave": {
-            "name": "Cave",
-            "description": "A dark, damp cave",
-            "items": [{'name': "Stick", 'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Gold Coin",'searchable': True}],
-            "enemies": ["Rat", "Bat"],
-            "npcs": [],
-            "connected_locations": ["Forest"],
-            "commands": ["sleep"]
-        },
-        "Forest": {
-            "name": "Forest",
-            "description": "A dense forest",
-            "items": [{'name': "Bow", 'searchable': True}],
-            "enemies": ["Wolf", "Bear"],
-            "connected_locations": ["Cave", "Town"],
-            "npcs": [], 
-            "commands": []
-
-        },
-        "Town": {
-            "name": "Town",
-            "description": "A bustling town",
-            # "connected_locations": [{'name': "Tyrone and Bryn's Books and Things", "items": ["Book", "Potion"], "npcs": ["Tyrone", "Bryn"], "commands":[]}, {'name': "General Store", "items": ["Sword", "Shield"], "npcs": ["Shopkeeper"]}],
-            "connected_locations": ["Forest", "General Store", "Tyrone and Bryn's Books and Things"],
-            "npcs": [globals.npcs["bryn"]],
-            "items": [],
-            "enemies": [],
-            "commands": []
-        }
+        "Cave": Location(name="Cave", description="A dark, damp cave", items=[{'name': "Stick", 'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Gold Coin",'searchable': True}], enemies=[globals.npcs["rat"]], npcs=[], connected_locations=["Forest"], commands=["sleep"]),
+        "Forest": Location(name="Forest", description="A dense forest", items=[{'name': "Bow", 'searchable': True}], enemies=["Wolf", "Bear"], connected_locations=["Cave", "Town"], npcs=[], commands=[]),
+        "Town": Location(name="Town", description="A bustling town", connected_locations=["Forest", "General Store", "Tyrone and Bryn's Books and Things"], npcs=[globals.npcs["bryn"], globals.npcs["tyrone"]], items=[], enemies=[], commands=[])
+        # "Cave": {
+        #     "name": "Cave",
+        #     "description": "A dark, damp cave",
+        #     "items": [{'name': "Stick", 'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Gold Coin",'searchable': True}],
+        #     "enemies": [globals.npcs["rat"]],
+        #     "npcs": [],
+        #     "connected_locations": ["Forest"],
+        #     "commands": ["sleep"]
+        # },
+        # "Forest": {
+        #     "name": "Forest",
+        #     "description": "A dense forest",
+        #     "items": [{'name': "Bow", 'searchable': True}],
+        #     "enemies": ["Wolf", "Bear"],
+        #     "connected_locations": ["Cave", "Town"],
+        #     "npcs": [], 
+        #     "commands": []
+        # },
+        # "Town": {
+        #     "name": "Town",
+        #     "description": "A bustling town",
+        #     # "connected_locations": [{'name': "Tyrone and Bryn's Books and Things", "items": ["Book", "Potion"], "npcs": ["Tyrone", "Bryn"], "commands":[]}, {'name': "General Store", "items": ["Sword", "Shield"], "npcs": ["Shopkeeper"]}],
+        #     "connected_locations": ["Forest", "General Store", "Tyrone and Bryn's Books and Things"],
+        #     "npcs": [globals.npcs["bryn"], globals.npcs["tyrone"]],
+        #     "items": [],
+        #     "enemies": [],
+        #     "commands": []
+        # }
     }
 
     # Set the player's starting location 
