@@ -78,7 +78,19 @@ class TalkCommand(Command):
     def execute(self, player, *args, **kwargs):
         if not args:
             util.clear_terminal()
-            print("You must specify an NPC to talk to.")
+            # Display command name and definition
+            print(f"Command: {self.name}")
+            print(f"Definition: {self.description}")
+
+            # Display NPCs in the current location
+            if player.location.name in globals.locations:
+                location = globals.locations[player.location.name]
+                npc_names = '\n\t'.join([npc.name for npc in location.npcs]) if location.npcs else None
+                if npc_names:
+                    print("\nNPCs in this location:")
+                    print(f"\t{npc_names}")
+                else:
+                    print("No NPCs in this location.")
             return
         npc_name = args[0]
         if player.location.name in globals.locations:
