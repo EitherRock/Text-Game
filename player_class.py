@@ -25,7 +25,17 @@ class Player:
     def travel(self, player, *args, **kwargs):
         if len(args) == 0:
             clear_terminal()
-            print("You must specify a location to travel to.")
+            # Display travel command, it's description, and possible arguments
+            command = globals.commands.get('travel')
+            if command:
+                print(f"Command: {command.name}")
+                print(f"Definition: {command.description}")
+
+            # Display connected locations
+            connected_locations = '\n\t'.join([location for location in self.location.connected_locations]) if self.location.connected_locations else None
+            if connected_locations:
+                print("\nConnected Locations:")
+                print(f"\t{connected_locations}")
             return
         
         fly = False
@@ -136,17 +146,6 @@ class Player:
     def quest(self, quest_name):
         # Code for starting a quest
         pass
-
-    def add_to_inventory(self, item):
-        self.inventory.append(item)
-
-    def remove_from_inventory(self, item):
-        self.inventory.remove(item)
-
-    def show_inventory(self):
-        print(f"{self.name}'s Inventory:")
-        for item in self.inventory:
-            print(item)
     
     def quit(self, player):
         clear_terminal()
@@ -155,10 +154,6 @@ class Player:
     
     def log(self, player):
         globals.log.display()
-
-    def location_info(self, player):
-        clear_terminal()
-        globals.game_display.display_location_info()
 
     def search(self, player, target=None):
         def perform_search(target):
@@ -238,32 +233,49 @@ class Player:
         print(f"{player.name} rested and recovered health and stamina.")
         globals.log.log(f"{player.name} rested and recovered health and stamina.")
     
-    def info(self, player, *args, **kwargs):
-        clear_terminal()
-        if args:
-            if args[0] == "player":
-                globals.game_display.display_player_info()
-            elif args[0] == "location":
-                globals.game_display.display_location_info()
-            elif args[0] == "npc":
-                if len(args) < 2:
-                    clear_terminal()
-                    print("You must specify an NPC to display information.")
-                    return
-                npc_name = args[1].lower()
-                npc = globals.npcs[npc_name]
-                location = globals.locations[player.location.name]
-                npc = next((npc for npc in location.npcs if npc.name.lower() == npc_name), None)
-                if npc is not None:
-                    globals.game_display.display_npc_info(npc)
-                else:
-                    print(f"No NPC named {npc_name} found at this location.")
-            else:
-                print(f"Invalid argument: {args[0]}")
-        else:
+    def info(self, player, target=None):
             # Display info command, it's description, and possible arguments
-            print("Command: Info")
-            print("Definition: Display player and location info")
+        if target is None:
+            command = globals.commands.get('info')
+            if command:
+                clear_terminal()
+                print(f"Command: {command.name}")
+                print(f"Definition: {command.description}")
+
+                # Create variables for NPCs, items, and locations
+                npc_names = '\n\t'.join([npc.name for npc in self.location.npcs]) if self.location.npcs else None
+                item_names = '\n\t'.join([item.name for item in self.location.inventory.items]) if self.location.inventory.items else None
+                location_name = self.location.name if self.location.name else None
+
+                # Build a string to display
+                info_options = "\nInfo Options:\n\tPlayer"
+                if location_name:
+                    info_options += f"\n\t{location_name}"
+                if npc_names:
+                    info_options += f"\n\t{npc_names}"
+                if item_names:
+                    info_options += f"\n\t{item_names}"
+
+                print(info_options)
+        elif target.lower() == 'player':
+            clear_terminal()
+            globals.game_display.display_player_info()
+        elif target == self.location.name:
+            # Display location info
+            clear_terminal()
+            globals.game_display.display_location_info()
+        elif target in [npc.name for npc in self.location.npcs]:
+            # Display NPC info
+            clear_terminal()
+            npc = next(npc for npc in self.location.npcs if npc.name == target)
+            globals.game_display.display_npc_info(npc)
+        elif target in [item.name for item in self.location.inventory.items]:
+            # Display item info
+            clear_terminal()
+            item = next(item for item in self.location.inventory.items if item.name == target)
+            globals.game_display.display_item_info(item)
+        
+        
             
     def fly(self):
         print("You fly")

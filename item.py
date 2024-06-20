@@ -1,6 +1,6 @@
 from inventory import Inventory
 class Item:
-    def __init__(self, name, description, equipable = False, stackable=False, health=None, price=None, quantity=None, commands=None, owner=None):
+    def __init__(self, name, description, equipable=None, stackable=None, health=None, price=None, quantity=None, commands=None, owner=None):
         self.name = name
         self.description = description
         self.health = health
@@ -19,8 +19,8 @@ class Item:
     
 
 class Container(Item):
-    def __init__(self, name, description, equipable=False, stackable=False, locked=False, health=None, price=None, quantity=None, items=None, commands=None, capacity=None):
-        super().__init__(name, description, stackable, health, price, quantity, commands, equipable)
+    def __init__(self, name, description, equipable=None, stackable=None, locked=None, health=None, price=None, quantity=None, items=None, commands=None, capacity=None):
+        super().__init__(name, description, equipable, stackable, health, price, quantity, commands)
         self.capacity = capacity
         self.inventory = Inventory(items=items)
         self.locked = locked

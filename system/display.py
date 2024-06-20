@@ -69,8 +69,6 @@ class Display:
 
     def display_player_info(self):
         for attr, value in vars(globals.player).items():
-            if attr == "dialogue_tree":
-                continue
             if attr == "inventory":
                 if value is not None:
                     value = [str(item) for item in value.items]
@@ -82,11 +80,15 @@ class Display:
         print("\n")
     
     def display_location_info(self):
-        # print(f"Location: {globals.player.location.name}")
-        # print(f"Description: {globals.player.location.description}")
         for attr, value in vars(globals.player.location).items():
-            if attr == "dialogue_tree":
-                continue
+            if attr == "inventory":
+                if value is not None:
+                    value = [str(item) for item in value.items]
+            if value is not None:
+                print(f"{attr.capitalize()}: {value}")
+    
+    def display_item_info(self, item):
+        for attr, value in vars(item).items():
             if attr == "inventory":
                 if value is not None:
                     value = [str(item) for item in value.items]
