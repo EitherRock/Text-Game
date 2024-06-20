@@ -1,12 +1,14 @@
 import random
+from inventory import Inventory
 
 class Location:
     def __init__(self, name, description, items=None, enemies=None, npcs=None, commands=None, connected_locations=None):
         self.name = name
         self.description = description
-        self.inventory = items
+        self.inventory = Inventory(items=items)
         self.enemies = enemies
         self.npcs = npcs
+        self.times_visited = 0
         self.commands = commands
         self.connected_locations = connected_locations
     

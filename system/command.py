@@ -2,12 +2,12 @@ import globals
 from system import util
 
 class Command:
-    def __init__(self, name=None, description=None, func=None):
+    def __init__(self, name, description, tag, func):
         self.name = name
         self.description = description
+        self.tag = tag
         self.func = func
         
-
     def __str__(self):
         return self.name
 
@@ -20,52 +20,61 @@ class Command:
     def execute(self, player, command_args):
         pass
 
-class TravelCommand(Command):
-    def __init__(self, player):
-        super().__init__("Travel", "Travel to a different location", player.travel)
+    def current_command_params(self):
+        return self.name
 
+class TravelCommand(Command):
+    def __init__(self, tag, player):
+        super().__init__("Travel", "Travel to a different location", tag, player.travel)
     def execute(self, command_args):
         self.func(self.player, *command_args)
+    
+    def current_command_params(self):
+        return ', '.join(globals.player.location.connected_locations)
+        
 
 class FightCommand(Command):
-    def __init__(self):
-        super().__init__("Fight", "Fight an enemy", self.execute)
+    def __init__(self, tag,):
+        super().__init__("Fight", "Fight an enemy", tag, self.execute)
     def execute(self, player, command_args):
         player.fight(command_args)
 
 class QuitCommand(Command):
-    def __init__(self, player):
-        super().__init__("Quit", "Quit the game", player.quit)
+    def __init__(self, tag, player):
+        super().__init__("Quit", "Quit the game", tag, player.quit)
     def execute(self, player):
         player.quit()
 
 class LogCommand(Command):
-    def __init__(self, player):
-        super().__init__("Log", "Display the log of events", player.log)
+    def __init__(self, tag, player):
+        super().__init__("Log", "Display the log of events", tag, player.log)
     def execute(self, player):
         player.log()
 
 class SearchCommand(Command):
-    def __init__(self, player):
-        super().__init__("Search", "Search the current location", player.search)
+    def __init__(self, tag, player):
+        super().__init__("Search", "Search your current location, an npc or a container", tag, player.search)
     def execute(self, player, command_args):
         player.search(command_args)
 
 class SleepCommand(Command):
-    def __init__(self, player):
-        super().__init__("Sleep", "Rest and recover health and stamina", player.sleep)
+    def __init__(self, tag, player):
+        super().__init__("Sleep", "Rest and recover health and stamina", tag, player.sleep)
     def execute(self, player):
         player.sleep()
 
 class InfoCommand(Command):
-    def __init__(self, player):
-        super().__init__("Info", "Display player and location info", player.info)
+    def __init__(self, tag, player):
+        super().__init__("Info", "Display player and location info", tag, player.info)
     def execute(self, player, *args, **kwargs):
         self.func(player, *args, **kwargs)
+    
+    def current_command_params(self):
+        return "player, location, npc"
 
 class TalkCommand(Command):
-    def __init__(self):
-        super().__init__("Talk", "Talk to an NPC", self.execute)
+    def __init__(self, tag):
+        super().__init__("Talk", "Talk to an NPC", tag, self.execute)
     def execute(self, player, *args, **kwargs):
         if not args:
             util.clear_terminal()
@@ -84,3 +93,37 @@ class TalkCommand(Command):
         else:
             util.clear_terminal()
             print("No NPCs in this location.")
+    
+    def current_command_params(self):
+        return ', '.join([str(npc) for npc in globals.player.location.npcs])
+
+class TakeCommand(Command):
+    def __init__(self, tag):
+        super().__init__("Take", "Take an item", tag, self.execute)
+    def execute(self, player, *args, **kwargs):
+        if not args:
+            util.clear_terminal()
+            print("You must specify an item to take.")
+            return
+        
+        item_name = args[0]
+        player = globals.player
+        valid_item = False
+        for item in globals.inventory.items:
+            if item_name == item.name:
+                valid_item = True
+                globals.inventory.take(player, item)
+                util.clear_terminal()
+                print(f"{item.name} added to inventory.\n")
+                break
+
+        if not valid_item:
+            util.clear_terminal()
+            print(f"No item named {item_name} found.\n")
+            
+
+class BackCommand(Command):
+    def __init__(self, tag):
+        super().__init__("Back", "Back out", tag, self.execute)
+    def execute(self, player):
+        player.back()
