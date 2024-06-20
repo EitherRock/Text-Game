@@ -1,4 +1,5 @@
 from system import util
+from inventory import Inventory
 
 class NPC:
     def __init__(self, name, description, location, health, role, attitude, status, commands=None, items=None, relationship_status=None, relationships=None, dialogue_tree=None):
@@ -7,7 +8,7 @@ class NPC:
         self.location = location
         self.health = health
         self.commands = commands
-        self.inventory = items
+        self.inventory = Inventory(items=items)
         self.attitude = attitude
         self.status = status
         self.relationship_status = relationship_status

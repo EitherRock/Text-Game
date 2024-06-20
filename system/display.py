@@ -4,33 +4,58 @@ sys.path.append("../")
 import globals
 from collections import OrderedDict
 from itertools import zip_longest
-from system.command import Command
+from system.command import Command, util
+import textwrap
 
 class Display:
     def __init__(self):
         pass
 
-    def display_commands(self):
-        print("Commands:")
+    def display_commands(self, show_parameters=True):
+        # Get the width of the terminal
+        width = os.get_terminal_size().columns
 
-        sorted_commands = OrderedDict(sorted(globals.commands.items()))
+        # Print the top border of the box
+        print("+" + "-" * (width - 2) + "+")
 
-        # Split the commands into two lists
-        half = len(sorted_commands) // 2
-        commands1 = list(sorted_commands.items())[:half]
-        commands2 = list(sorted_commands.items())[half:]
+        # Print the title of the box
+        title = " COMMANDS "
+        print("|" + title.center(width - 2) + "|")
 
-        # Print the commands in two columns
+        # Print a separator
+        print("+" + "-" * (width - 2) + "+")
 
-        for (name1, command1), (name2, command2) in zip_longest(commands1, commands2, fillvalue=(None, Command('', ''))):
-            if name1 is not None:
-                name1 = name1 + ":"
-                print(f"{name1:<8} {command1.description:<50}", end="")
-            if name2 is not None:
-                name2 = name2 + ":"
-                print(f"{name2:<8} {command2.description}")
-                # print()
+        # Group the commands by their tags
+        player_commands = {name: command for name, command in globals.commands.items() if command.tag == 'player'}
+        system_commands = {name: command for name, command in globals.commands.items() if command.tag == 'system'}
+        equipped_commands = {name: command for name, command in globals.commands.items() if command.tag == 'equipped'}
 
+        # Print the subheaders
+        print("|" + " Player ".center((width - 4) // 3, " ") + "|" + " System ".center((width - 4) // 3, " ") + "|" + " Equipped ".center((width - 4) // 3, " ") + "|")
+
+        # Print a separator
+        print("+" + "-" * (width - 2) + "+")
+
+        # Print the commands in three columns
+        for (name1, command1), (name2, command2), (name3, command3) in zip_longest(player_commands.items(), system_commands.items(), equipped_commands.items(), fillvalue=(None, Command('', '', '', lambda: None))):
+            row = ""
+            if name1 is not None and command1 is not None:
+                row += f"{name1.center((width - 4) // 3, ' ') + '|'}"
+            else:
+                row += " " * ((width - 4) // 3) + "|"
+            
+            if name2 is not None and command2 is not None:
+                row += f"{name2.center((width - 4) // 3, ' ') + '|'}"
+            else:
+                row += " " * ((width - 4) // 3) + "|"
+            if name3 is not None and command3 is not None:
+                row += f"{name3.center((width - 4) // 3, ' ')}"
+            else:
+                row += " " * ((width - 4) // 3)
+            print("|" + row + "|")
+
+        # Print the bottom border of the box
+        print("+" + "-" * (width - 2) + "+")
         print("\n")
         
     
@@ -46,6 +71,9 @@ class Display:
         for attr, value in vars(globals.player).items():
             if attr == "dialogue_tree":
                 continue
+            if attr == "inventory":
+                if value is not None:
+                    value = [str(item) for item in value.items]
             if value is not None:
                 print(f"{attr.capitalize()}: {value}")
     
@@ -59,6 +87,9 @@ class Display:
         for attr, value in vars(globals.player.location).items():
             if attr == "dialogue_tree":
                 continue
+            if attr == "inventory":
+                if value is not None:
+                    value = [str(item) for item in value.items]
             if value is not None:
                 print(f"{attr.capitalize()}: {value}")
 
@@ -75,5 +106,31 @@ class Display:
         for attr, value in vars(npc).items():
             if attr == "dialogue_tree":
                 continue
+            if attr == "inventory":
+                if value is not None:
+                    value = [str(item) for item in value.items]
             if value is not None:
                 print(f"{attr.capitalize()}: {value}")
+    
+    def display_inventory(self, inventory):
+        print("Inventory:")
+        for item in inventory.items:
+            print(f"\t{item}")
+    
+    def process_command(self):
+        self.always_display()
+        print("\033[31mThis is red text.\033[0m")
+        print("\033[32mThis is green text.\033[0m")
+        command_input = input("Enter a command: ")
+        if command_input != "":
+            command_name, *command_args = command_input.split()
+
+            if command_name in globals.commands:
+                globals.commands[command_name](globals.player, *command_args)
+            else:
+                util.clear_terminal()
+                print(f"Invalid command: '{command_name}',\nTry again.")
+        else:
+            util.clear_terminal()
+            print("Please enter a command.")
+

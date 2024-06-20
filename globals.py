@@ -5,3 +5,6 @@ locations = {}
 game_display = None
 log = None
 npcs = {}
+items = {}
+inventory = None
+break_loop = False

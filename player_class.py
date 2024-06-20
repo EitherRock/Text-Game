@@ -1,6 +1,8 @@
 from system.logger import Logger
 from system.util import clear_terminal
 import globals as globals
+from inventory import Inventory
+from item import Container
 import random
 
 class Player:
@@ -14,7 +16,8 @@ class Player:
         self.experience = xp
         self.location = None
         self.previous_location = None
-        self.inventory = []
+        self.inventory = Inventory(capacity=5)
+        self.equpped_items = []
         self.days = 0
         self.statuses = ["Alive", "Full Stamina", "Full Health"]
         self.quest_log = []
@@ -157,27 +160,74 @@ class Player:
         clear_terminal()
         globals.game_display.display_location_info()
 
-    def search(self, player, *args, **kwargs):
-        # TODO: Implement search logic, add extra parameters if searching storage, npcs, etc.
-        searchable_items = [item for item in player.location.inventory if item['searchable']]
-        
-        if len(searchable_items) == 0:
-            clear_terminal()
-            print("There are no items to search for in this location.")
-            return
-        
-        # Use a randomizer to determine if the search is successful
-        if random.random() < 0.5:  # 50% chance of success
-            clear_terminal()
-            print("Your search was unsuccessful.")
-            return
+    def search(self, player, target=None):
+        def perform_search(target):
+            globals.inventory = target.inventory
+            if 'take' not in globals.commands:
+                globals.commands['take'] = globals.all_commands['take']
+            if 'back' not in globals.commands:
+                globals.commands['back'] = globals.all_commands['back']
+            if 'travel' in globals.commands:
+                del globals.commands['travel']
 
-        # Randomly pick an item from the searchable items
-        item = random.choice(searchable_items)
-        self.inventory.append(item)
-        clear_terminal()
-        print(f"You found a {item['name']}!")
-        globals.log.log(f"{player.name} found a {item['name']}!")
+            # Process commands until the user enters the 'back' command
+            while True:
+                print(f"You search the {target.name}...")
+                globals.game_display.display_inventory(target.inventory)
+                globals.game_display.process_command()
+                if globals.break_loop:
+                    break
+
+            # Remove the 'take' and 'back' commands after the loop breaks
+            if 'take' in globals.commands:
+                del globals.commands['take']
+            if 'back' in globals.commands:
+                del globals.commands['back']
+            if 'travel' not in globals.commands:
+                globals.commands['travel'] = globals.all_commands['travel']
+
+            # Reset the break_loop flag
+            globals.break_loop = False
+
+        if target is None:
+            command = globals.commands.get('search')
+            if command:
+                clear_terminal()
+                print(f"Command: {command.name}")
+                print(f"Definition: {command.description}")
+
+                # Create variables for NPCs, items, and locations
+                npc_names = '\n\t'.join([npc.name for npc in self.location.npcs]) if self.location.npcs else None
+                container_items = '\n\t'.join([item.name for item in self.location.inventory.items if isinstance(item, Container)]) if self.location.inventory.items else None
+                location_name = self.location.name if self.location.name else None
+
+                # Build a string to display
+                search_options = "\nSearch Options:"
+                if location_name:
+                    search_options += f"\n\t{location_name}"
+                if npc_names:
+                    search_options += f"\n\t{npc_names}"
+                if container_items:
+                    search_options += f"\n\t{container_items}"
+
+                print(f'{search_options}\n')
+                
+        elif target == self.location.name:
+            clear_terminal()
+            perform_search(self.location)
+        elif target in [npc.name for npc in self.location.npcs]:
+            # Search the NPC
+            clear_terminal()
+            npc = next(npc for npc in self.location.npcs if npc.name == target)
+            perform_search(npc)
+        elif target in [item.name for item in self.location.inventory.items if isinstance(item, Container)]:
+            # Search the container
+            clear_terminal()
+            container = next(item for item in self.location.inventory.items if item.name == target)
+            perform_search(container)
+        else:
+            clear_terminal()
+            print(f"No location, NPC, or container named '{target}' found at this location.")
     
     def sleep(self, player):
         # Rest and recover health and stamina
@@ -211,13 +261,17 @@ class Player:
             else:
                 print(f"Invalid argument: {args[0]}")
         else:
-            # Display general information
-            print(f"Name: {self.name}, Health: {self.health}, Stamina: {self.stamina}")
-            if self.mana:
-                print(f"Mana: {self.mana}")
+            # Display info command, it's description, and possible arguments
+            print("Command: Info")
+            print("Definition: Display player and location info")
+            
     def fly(self):
         print("You fly")
-
+    
+    def back(self):
+        clear_terminal()
+        globals.break_loop = True
+ 
     def __str__(self):
         string = f"Name: {self.name}, Health: {self.health}, Stamina: {self.stamina}"
         if self.mana:

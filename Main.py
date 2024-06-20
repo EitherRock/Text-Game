@@ -2,6 +2,7 @@ import globals
 from player_class import Player
 from non_playable_character import NPC, Enemy
 from location import Location
+from item import Item, Container
 from system import command, util, logger, display
 
 dialogue_tree = {
@@ -73,14 +74,16 @@ def game_setup():
     globals.game_display = display.Display()
 
     globals.all_commands = {
-        "travel": command.TravelCommand(globals.player),
-        "fight": command.FightCommand(),
-        "search": command.SearchCommand(globals.player),
-        "log": command.LogCommand(globals.player),
-        "info": command.InfoCommand(globals.player),
-        "quit": command.QuitCommand(globals.player),
-        "sleep": command.SleepCommand(globals.player),
-        "talk": command.TalkCommand(),
+        "travel": command.TravelCommand('player', globals.player),
+        # "fight": command.FightCommand(),
+        "search": command.SearchCommand('player', globals.player),
+        "log": command.LogCommand('system', globals.player),
+        "info": command.InfoCommand('system', globals.player),
+        "quit": command.QuitCommand('system', globals.player),
+        "sleep": command.SleepCommand('player', globals.player),
+        "talk": command.TalkCommand('player'),
+        "take": command.TakeCommand('player'),
+        "back": command.BackCommand('system'),
 
         
         # "buy": Command.BuyCommand("Buy", "Buy an item"),
@@ -91,13 +94,19 @@ def game_setup():
     }
 
     globals.commands = {
-        "travel": command.TravelCommand(globals.player),
-        "fight": command.FightCommand(),
-        "search": command.SearchCommand(globals.player),
-        "log": command.LogCommand(globals.player),
-        "info": command.InfoCommand(globals.player),
-        "quit": command.QuitCommand(globals.player),
-        "sleep": command.SleepCommand(globals.player)
+        "travel": command.TravelCommand('player', globals.player),
+        # "fight": command.FightCommand(),
+        "search": command.SearchCommand('player', globals.player),
+        "log": command.LogCommand('system', globals.player),
+        "info": command.InfoCommand('system', globals.player),
+        "quit": command.QuitCommand('system', globals.player),
+        "sleep": command.SleepCommand('player', globals.player),
+    }
+    globals.items = {
+        "Stick": Item(name="Stick", description="A small stick"),
+        "Stone": Item(name="Stone", description="A small stone"),
+        "Coin": Item(name="Coin", description="A shiny gold coin", price=1),
+        "Backpack": Container(name="Backpack", description="A small backpack", capacity=5, equipable=True),
     }
     globals.npcs = {
         "bryn": NPC(name='Bryn', description='A mystical lady', location='Town', health=10, role='Shopkeeper', attitude='friendly', status='alive', dialogue_tree=dialogue_tree),
@@ -105,37 +114,9 @@ def game_setup():
         "rat": Enemy(name='Rat', description='A small rat', location='Cave', health=5, role='Enemy', status='alive'),
     }
     globals.locations = {
-        "Cave": Location(name="Cave", description="A dark, damp cave", items=[{'name': "Stick", 'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Gold Coin",'searchable': True}], enemies=[globals.npcs["rat"]], npcs=[], connected_locations=["Forest"], commands=["sleep"]),
-        "Forest": Location(name="Forest", description="A dense forest", items=[{'name': "Bow", 'searchable': True}], enemies=["Wolf", "Bear"], connected_locations=["Cave", "Town"], npcs=[], commands=[]),
-        "Town": Location(name="Town", description="A bustling town", connected_locations=["Forest", "General Store", "Tyrone and Bryn's Books and Things"], npcs=[globals.npcs["bryn"], globals.npcs["tyrone"]], items=[], enemies=[], commands=[])
-        # "Cave": {
-        #     "name": "Cave",
-        #     "description": "A dark, damp cave",
-        #     "items": [{'name': "Stick", 'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Stone",'searchable': True}, {'name':"Gold Coin",'searchable': True}],
-        #     "enemies": [globals.npcs["rat"]],
-        #     "npcs": [],
-        #     "connected_locations": ["Forest"],
-        #     "commands": ["sleep"]
-        # },
-        # "Forest": {
-        #     "name": "Forest",
-        #     "description": "A dense forest",
-        #     "items": [{'name': "Bow", 'searchable': True}],
-        #     "enemies": ["Wolf", "Bear"],
-        #     "connected_locations": ["Cave", "Town"],
-        #     "npcs": [], 
-        #     "commands": []
-        # },
-        # "Town": {
-        #     "name": "Town",
-        #     "description": "A bustling town",
-        #     # "connected_locations": [{'name': "Tyrone and Bryn's Books and Things", "items": ["Book", "Potion"], "npcs": ["Tyrone", "Bryn"], "commands":[]}, {'name': "General Store", "items": ["Sword", "Shield"], "npcs": ["Shopkeeper"]}],
-        #     "connected_locations": ["Forest", "General Store", "Tyrone and Bryn's Books and Things"],
-        #     "npcs": [globals.npcs["bryn"], globals.npcs["tyrone"]],
-        #     "items": [],
-        #     "enemies": [],
-        #     "commands": []
-        # }
+        "Cave": Location(name="Cave", description="A dark, damp cave", items=[globals.items['Stick'], globals.items['Stone'], globals.items['Coin'], globals.items['Backpack']], enemies=[globals.npcs["rat"]], npcs=[], connected_locations=["Forest"], commands=["sleep"]),
+        "Forest": Location(name="Forest", description="A dense forest", items=[], enemies=[], connected_locations=["Cave", "Town"], npcs=[], commands=[]),
+        "Town": Location(name="Town", description="A bustling town", connected_locations=["Forest", "Tyrone and Bryn's Books and Things-Not a location"], npcs=[globals.npcs["bryn"], globals.npcs["tyrone"]], items=[], enemies=[], commands=[])
     }
 
     # Set the player's starting location 
@@ -154,23 +135,24 @@ def game_loop():
     # Start the game setup
     game_setup()
     while True:
-        globals.game_display.always_display()
-        print("\033[31mThis is red text.\033[0m")
-        print("\033[32mThis is green text.\033[0m")
-        # Get user input
-        command_input = input("Enter a command: ")
-        print(command_input)
-        if command_input != "":
-            command_name, *command_args = command_input.split()
+        globals.game_display.process_command()
+        # globals.game_display.always_display()
+        # print("\033[31mThis is red text.\033[0m")
+        # print("\033[32mThis is green text.\033[0m")
+        # # Get user input
+        # command_input = input("Enter a command: ")
+        # print(command_input)
+        # if command_input != "":
+        #     command_name, *command_args = command_input.split()
 
-            if command_name in globals.commands:
-                globals.commands[command_name](globals.player, *command_args)
-            else:
-                util.clear_terminal()
-                print(f"Invalid command: '{command_name}',\nTry again.")
-        else:
-            util.clear_terminal()
-            print("Please enter a command.")
+        #     if command_name in globals.commands:
+        #         globals.commands[command_name](globals.player, *command_args)
+        #     else:
+        #         util.clear_terminal()
+        #         print(f"Invalid command: '{command_name}',\nTry again.")
+        # else:
+        #     util.clear_terminal()
+        #     print("Please enter a command.")
     
 
 # Start the game loop
