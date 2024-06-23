@@ -1,5 +1,7 @@
 from system import util
 from inventory import Inventory
+from combat import Combat
+import globals as globals
 
 class NPC:
     def __init__(self, name, description, location, health, role, attitude, status, commands=None, items=None, relationship_status=None, relationships=None, dialogue_tree=None):
@@ -51,6 +53,36 @@ class NPC:
             self.talk(next_node)
         else:
             print("End of conversation.")
+
+    def fight(self):
+        def perform_fight():
+            
+            if 'attack' not in globals.commands:
+                globals.commands['attack'] = globals.all_commands['attack']
+            if 'travel' in globals.commands:
+                del globals.commands['travel']
+            if 'search' in globals.commands:
+                del globals.commands['search']
+            if 'sleep' in globals.commands:
+                del globals.commands['sleep']
+            combat = Combat(globals.player, self)
+            combat.start()
+
+            # Remove the 'take' and 'back' commands after the loop breaks
+            if 'attack' in globals.commands:
+                del globals.commands['attack']
+            if 'travel' not in globals.commands:
+                globals.commands['travel'] = globals.all_commands['travel']
+            if 'search' not in globals.commands:
+                globals.commands['search'] = globals.all_commands['search']
+            if 'sleep' not in globals.commands: 
+                globals.commands['sleep'] = globals.all_commands['sleep']
+
+            # Reset the break_loop flag
+            globals.break_loop = False
+        
+        perform_fight()
+
 
 
 class Enemy(NPC):

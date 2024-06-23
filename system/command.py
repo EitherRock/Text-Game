@@ -139,3 +139,28 @@ class BackCommand(Command):
         super().__init__("Back", "Back out", tag, self.execute)
     def execute(self, player):
         player.back()
+
+class AttackCommand(Command):
+    def __init__(self, tag):
+        super().__init__("Attack", "Attack an enemy or npc and deal damage.", tag, self.execute)
+    def execute(self, player, *args, **kwargs):
+        if not args:
+            util.clear_terminal()
+            print("You must specify an enemy to attack.")
+            return
+        
+        enemy_name = args[0]
+        if player.location.name in globals.locations:
+            location = globals.locations[player.location.name]
+            enemy = next((enemy for enemy in location.enemies if enemy.name == enemy_name), None)
+            if enemy is not None:
+                util.clear_terminal()
+                # Assuming globals.combat is the current combat instance
+                damage_dealt = globals.combat.attack(player.damage, enemy)  # player.attack_power is assumed to be the player's attack power
+                print(f"You attacked {enemy_name} and dealt {damage_dealt} damage.")
+            else:
+                util.clear_terminal()
+                print(f"No enemy named {enemy_name} found.")
+        else:
+            util.clear_terminal()
+            print("No enemies in this location.")

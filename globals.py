@@ -8,3 +8,4 @@ npcs = {}
 items = {}
 inventory = None
 break_loop = False
+combat = None

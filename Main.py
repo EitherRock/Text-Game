@@ -3,6 +3,7 @@ from player_class import Player
 from non_playable_character import NPC, Enemy
 from location import Location
 from item import Item, Container
+from combat import Combat
 from system import command, util, logger, display
 
 dialogue_tree = {
@@ -66,6 +67,7 @@ def game_setup():
     # Initialize the logger
     globals.log = logger.Logger()
     globals.log.log("Game started")
+    globals.combat = Combat()
 
     # Initialize the player
     player_name = input("Enter your name: ")
@@ -75,7 +77,7 @@ def game_setup():
 
     globals.all_commands = {
         "travel": command.TravelCommand('player', globals.player),
-        # "fight": command.FightCommand(),
+        "fight": command.FightCommand(tag='player'),
         "search": command.SearchCommand('player', globals.player),
         "log": command.LogCommand('system', globals.player),
         "info": command.InfoCommand('system', globals.player),
@@ -84,6 +86,8 @@ def game_setup():
         "talk": command.TalkCommand('player'),
         "take": command.TakeCommand('player'),
         "back": command.BackCommand('system'),
+        "attack": command.AttackCommand(tag='player'),
+        "fight": command.FightCommand(tag='fight'),
 
         
         # "buy": Command.BuyCommand("Buy", "Buy an item"),

@@ -24,6 +24,8 @@ class Location:
             if random.random() < 0.5:  # 50% chance of an enemy encounter
                 enemy = random.choice(self.enemies)
                 print(f"You encounter a {enemy.name}!")
+                enemy.fight()
+
                 
         return None
 

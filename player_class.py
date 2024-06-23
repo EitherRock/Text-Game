@@ -21,7 +21,11 @@ class Player:
         self.days = 0
         self.statuses = ["Alive", "Full Stamina", "Full Health"]
         self.quest_log = []
+        self.damage = 2
 
+    def calculate_damage(self):
+        return self.damage
+    
     def travel(self, player, *args, **kwargs):
         if len(args) == 0:
             clear_terminal()
@@ -56,6 +60,7 @@ class Player:
             print(f"{self.name} flew from {self.previous_location.name} to {self.location.name}")
             globals.log.log(f"{self.name} flew from {self.previous_location.name} to {self.location.name}")
 
+            # Check for enemy encounters
             self.location.enemy_encounter()
                 
         elif location not in self.location.connected_locations:
@@ -164,6 +169,10 @@ class Player:
                 globals.commands['back'] = globals.all_commands['back']
             if 'travel' in globals.commands:
                 del globals.commands['travel']
+            if 'search' in globals.commands:
+                del globals.commands['search']
+            if 'sleep' in globals.commands:
+                del globals.commands['sleep']
 
             # Process commands until the user enters the 'back' command
             while True:
@@ -180,6 +189,10 @@ class Player:
                 del globals.commands['back']
             if 'travel' not in globals.commands:
                 globals.commands['travel'] = globals.all_commands['travel']
+            if 'search' not in globals.commands:
+                globals.commands['search'] = globals.all_commands['search']
+            if 'sleep' not in globals.commands: 
+                globals.commands['sleep'] = globals.all_commands['sleep']
 
             # Reset the break_loop flag
             globals.break_loop = False
