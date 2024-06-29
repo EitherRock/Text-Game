@@ -1,5 +1,7 @@
 import random
 from inventory import Inventory
+from combat import Combat
+import globals as globals
 
 class Location:
     def __init__(self, name, description, items=None, enemies=None, npcs=None, commands=None, connected_locations=None):
@@ -22,11 +24,25 @@ class Location:
         # Check for enemy encounters
         if self.enemies:
             if random.random() < 0.5:  # 50% chance of an enemy encounter
-                enemy = random.choice(self.enemies)
-                print(f"You encounter a {enemy.name}!")
-                enemy.fight()
+                encounter_enemies = []  # List of enemies for the encounter
 
-                
+                for enemy_name in self.enemies:
+                    enemy = globals.npcs.get(enemy_name)  # Look up the NPC object by name
+                    if enemy is not None:
+                        encounter_enemies.append(enemy)
+                    else:
+                        print(f"Error: NPC '{enemy_name}' not found.")
+            
+                if encounter_enemies:
+                    num_enemies = len(encounter_enemies)
+                    print(f"You encounter {num_enemies} enemies!")
+                    globals.game_display.process_player_input(continue_text=True)
+                    globals.combat = Combat(globals.player, encounter_enemies)
+                    globals.combat.start()
+
+                    # Reset the break_loop flag
+                    globals.break_loop = False
+
         return None
 
 

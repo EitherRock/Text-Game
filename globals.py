@@ -1,6 +1,7 @@
 player = None
 all_commands = {}
 commands = {}
+combat_commands = {}
 locations = {}
 game_display = None
 log = None

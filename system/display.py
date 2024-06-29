@@ -99,10 +99,18 @@ class Display:
         print(info)
         print("\n")
 
-    def display_combat_info(self, player, enemy):
-        print(f"{player.name} health: {player.health}")
-        print(f"{enemy.name} health: {enemy.health}")
-        print("\n")
+    def display_combat_info(self, player, enemies, turn, round_num, last_atk_info=" "):
+        print(f"Round {round_num}")
+        print(f"{last_atk_info}\n")
+        if turn.name == player.name:
+            print(f"* {player.name} health: {player.health}")
+        else:
+            print(f"  {player.name} health: {player.health}")
+        for enemy in enemies:
+            if turn.name == enemy.name:
+                print(f"* {enemy.name} health: {enemy.health}")
+            else:
+                print(f"  {enemy.name} health: {enemy.health}")
     
     def display_npc_info(self, npc):
         for attr, value in vars(npc).items():
@@ -119,20 +127,24 @@ class Display:
         for item in inventory.items:
             print(f"\t{item}")
     
-    def process_command(self):
+    def process_player_input(self, continue_text=False):
         self.always_display()
         print("\033[31mThis is red text.\033[0m")
         print("\033[32mThis is green text.\033[0m")
-        command_input = input("Enter a command: ")
-        if command_input != "":
-            command_name, *command_args = command_input.split()
+        if continue_text:
+            input("Press Enter to continue...")
+        else:
+            command_input = input("Enter a command: ")
+            if command_input != "":
+                command_name, *command_args = command_input.split()
 
-            if command_name in globals.commands:
-                globals.commands[command_name](globals.player, *command_args)
+                if command_name in globals.commands:
+                    globals.commands[command_name](globals.player, *command_args)
+                else:
+                    util.clear_terminal()
+                    print(f"Invalid command: '{command_name}',\nTry again.")
             else:
                 util.clear_terminal()
-                print(f"Invalid command: '{command_name}',\nTry again.")
-        else:
-            util.clear_terminal()
-            print("Please enter a command.")
+                print("Please enter a command.")
+    
 
