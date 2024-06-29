@@ -13,3 +13,7 @@ class Logger:
         clear_terminal()
         for event in self.events:
             print(event)
+    
+    def print_and_log(self, text):
+        print(text)
+        self.log(text)

@@ -139,3 +139,41 @@ class BackCommand(Command):
         super().__init__("Back", "Back out", tag, self.execute)
     def execute(self, player):
         player.back()
+
+class AttackCommand(Command):
+    def __init__(self, tag):
+        super().__init__("Attack", "Attack an enemy or npc and deal damage.", tag, self.execute)
+    def execute(self, player, *args, **kwargs):
+        if not args:
+            util.clear_terminal()
+            # Display command name and definition
+            print(f"Command: {self.name}")
+            print(f"Definition: {self.description}")
+
+            # Display enemies in the current location
+            if player.location.name in globals.locations:
+                location = globals.locations[player.location.name]
+                enemy_names = '\n\t'.join([enemy for enemy in location.enemies]) if location.enemies else None
+                if enemy_names:
+                    print("\nEnemies in this location:")
+                    print(f"\t{enemy_names}")
+                else:
+                    print("No enemies in this location.")
+            
+        else:
+            enemy_name = args[0]
+            if globals.combat is not None:
+                enemy = next((enemy for enemy in globals.combat.enemies if enemy.name == enemy_name), None)
+                if enemy is not None:
+                    util.clear_terminal()
+                    # Assuming globals.combat is the current combat instance
+                    globals.combat.attack(player.damage, enemy)
+                else:
+                    util.clear_terminal()
+                    print(f"No enemy named {enemy_name} found.")
+
+class FleeCommand(Command):
+    def __init__(self, tag):
+        super().__init__("Flee", "Flee from combat", tag, self.execute)
+    def execute(self, player, *args, **kwargs):
+        globals.combat.flee()

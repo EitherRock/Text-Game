@@ -21,7 +21,12 @@ class Player:
         self.days = 0
         self.statuses = ["Alive", "Full Stamina", "Full Health"]
         self.quest_log = []
+        self.combat_commands = ['attack', 'flee']
+        self.damage = 3
 
+    def calculate_damage(self):
+        return self.damage
+    
     def travel(self, player, *args, **kwargs):
         if len(args) == 0:
             clear_terminal()
@@ -55,8 +60,6 @@ class Player:
             clear_terminal()
             print(f"{self.name} flew from {self.previous_location.name} to {self.location.name}")
             globals.log.log(f"{self.name} flew from {self.previous_location.name} to {self.location.name}")
-
-            self.location.enemy_encounter()
                 
         elif location not in self.location.connected_locations:
             clear_terminal()
@@ -67,6 +70,7 @@ class Player:
             clear_terminal()
             print(f"{self.name} traveled from {self.previous_location.name} to {self.location.name}")
             globals.log.log(f"{self.name} traveled from {self.previous_location.name} to {self.location.name}")
+        
 
         # Remove the commands of the previous location
         if self.previous_location.npcs:
@@ -77,6 +81,9 @@ class Player:
                 for command in self.previous_location.commands:
                     del globals.commands[command]
         
+        # Check for enemy encounters
+        self.location.enemy_encounter()
+
         # Add the commands of the new location
         if self.location.npcs:
             globals.commands['talk'] = globals.all_commands['talk']
@@ -164,12 +171,16 @@ class Player:
                 globals.commands['back'] = globals.all_commands['back']
             if 'travel' in globals.commands:
                 del globals.commands['travel']
+            if 'search' in globals.commands:
+                del globals.commands['search']
+            if 'sleep' in globals.commands:
+                del globals.commands['sleep']
 
             # Process commands until the user enters the 'back' command
             while True:
                 print(f"You search the {target.name}...")
                 globals.game_display.display_inventory(target.inventory)
-                globals.game_display.process_command()
+                globals.game_display.process_player_input()
                 if globals.break_loop:
                     break
 
@@ -180,6 +191,10 @@ class Player:
                 del globals.commands['back']
             if 'travel' not in globals.commands:
                 globals.commands['travel'] = globals.all_commands['travel']
+            if 'search' not in globals.commands:
+                globals.commands['search'] = globals.all_commands['search']
+            if 'sleep' not in globals.commands: 
+                globals.commands['sleep'] = globals.all_commands['sleep']
 
             # Reset the break_loop flag
             globals.break_loop = False
@@ -227,11 +242,11 @@ class Player:
     def sleep(self, player):
         # Rest and recover health and stamina
         clear_terminal()
-        player.health = player.max_health
-        player.stamina = player.max_stamina
-        player.days += 1
-        print(f"{player.name} rested and recovered health and stamina.")
-        globals.log.log(f"{player.name} rested and recovered health and stamina.")
+        self.health += 2
+        self.stamina = player.max_stamina
+        self.days += 1
+        print(f"{self.name} rested and recovered health and stamina.")
+        globals.log.log(f"{self.name} rested and recovered health and stamina.")
     
     def info(self, player, target=None):
             # Display info command, it's description, and possible arguments
