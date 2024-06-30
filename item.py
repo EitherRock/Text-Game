@@ -49,3 +49,14 @@ class Container(Item):
         else:
             print(f"The {self.name} is already unlocked.")
 
+class Weapon(Item):
+    def __init__(self, name, description, equipable=None, stackable=None, health=None, price=None, quantity=None, damage=1, commands=None):
+        super().__init__(name, description, equipable, stackable, health, price, quantity, commands)
+        self.damage = damage
+    
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return self.name
+

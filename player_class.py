@@ -163,18 +163,22 @@ class Player:
         globals.log.display()
 
     def search(self, player, target=None):
+        search_commands = ['take', 'back', 'log', 'info', 'quit']
+        previous_commands = globals.commands
+        globals.commands = {command: globals.all_commands[command] for command in search_commands}
         def perform_search(target):
             globals.inventory = target.inventory
-            if 'take' not in globals.commands:
-                globals.commands['take'] = globals.all_commands['take']
-            if 'back' not in globals.commands:
-                globals.commands['back'] = globals.all_commands['back']
-            if 'travel' in globals.commands:
-                del globals.commands['travel']
-            if 'search' in globals.commands:
-                del globals.commands['search']
-            if 'sleep' in globals.commands:
-                del globals.commands['sleep']
+            
+            # if 'take' not in globals.commands:
+            #     globals.commands['take'] = globals.all_commands['take']
+            # if 'back' not in globals.commands:
+            #     globals.commands['back'] = globals.all_commands['back']
+            # if 'travel' in globals.commands:
+            #     del globals.commands['travel']
+            # if 'search' in globals.commands:
+            #     del globals.commands['search']
+            # if 'sleep' in globals.commands:
+            #     del globals.commands['sleep']
 
             # Process commands until the user enters the 'back' command
             while True:
@@ -185,16 +189,17 @@ class Player:
                     break
 
             # Remove the 'take' and 'back' commands after the loop breaks
-            if 'take' in globals.commands:
-                del globals.commands['take']
-            if 'back' in globals.commands:
-                del globals.commands['back']
-            if 'travel' not in globals.commands:
-                globals.commands['travel'] = globals.all_commands['travel']
-            if 'search' not in globals.commands:
-                globals.commands['search'] = globals.all_commands['search']
-            if 'sleep' not in globals.commands: 
-                globals.commands['sleep'] = globals.all_commands['sleep']
+            # if 'take' in globals.commands:
+            #     del globals.commands['take']
+            # if 'back' in globals.commands:
+            #     del globals.commands['back']
+            # if 'travel' not in globals.commands:
+            #     globals.commands['travel'] = globals.all_commands['travel']
+            # if 'search' not in globals.commands:
+            #     globals.commands['search'] = globals.all_commands['search']
+            # if 'sleep' not in globals.commands: 
+            #     globals.commands['sleep'] = globals.all_commands['sleep']
+            globals.commands = previous_commands
 
             # Reset the break_loop flag
             globals.break_loop = False
@@ -294,6 +299,43 @@ class Player:
             
     def fly(self):
         print("You fly")
+    
+    def show_inventory(self):
+        inventory_commands = ['drop', 'log', 'info', 'quit', 'back']  #'move', 'use', 
+        previous_commands = globals.commands
+        globals.commands = {command: globals.all_commands[command] for command in inventory_commands}
+        if 'back' not in globals.commands:
+            globals.commands['back'] = globals.all_commands['back']
+        if 'travel' in globals.commands:
+            del globals.commands['travel']
+        if 'search' in globals.commands:
+            del globals.commands['search']
+        if 'sleep' in globals.commands:
+            del globals.commands['sleep']
+        if 'inventory' in globals.commands:
+            del globals.commands['inventory']
+        clear_terminal()
+        
+        # Process commands until the user enters the 'back' command
+        while True:
+            globals.game_display.display_inventory(self.inventory)
+            globals.game_display.process_player_input()
+            if globals.break_loop:
+                break
+
+        # Remove the 'take' and 'back' commands after the loop breaks
+        # if 'back' in globals.commands:
+        #     del globals.commands['back']
+        # if 'travel' not in globals.commands:
+        #     globals.commands['travel'] = globals.all_commands['travel']
+        # if 'search' not in globals.commands:
+        #     globals.commands['search'] = globals.all_commands['search']
+        # if 'sleep' not in globals.commands:
+        #     globals.commands['sleep'] = globals.all_commands['sleep']
+        # if 'inventory' not in globals.commands:
+        #     globals.commands['inventory'] = globals.all_commands['inventory']
+        globals.commands = previous_commands
+        globals.break_loop = False
     
     def back(self):
         clear_terminal()

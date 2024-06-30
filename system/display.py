@@ -5,11 +5,12 @@ import globals
 from collections import OrderedDict
 from itertools import zip_longest
 from system.command import Command, util
-import textwrap
+from item import Container
 
 class Display:
-    def __init__(self):
-        pass
+    def __init__(self, player=None):
+        self.player = player
+        
 
     def display_commands(self, show_parameters=True):
         # Get the width of the terminal
@@ -122,10 +123,15 @@ class Display:
             if value is not None:
                 print(f"{attr.capitalize()}: {value}")
     
+
     def display_inventory(self, inventory):
+        def display_items(items, indent=""):
+            for item in items:
+                print(f"{indent}{item}")
+                if isinstance(item, Container):
+                    display_items(item.inventory.items, indent + "\t")
         print("Inventory:")
-        for item in inventory.items:
-            print(f"\t{item}")
+        display_items(inventory.items, indent="\t")
     
     def process_player_input(self, continue_text=False):
         self.always_display()

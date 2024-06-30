@@ -1,3 +1,5 @@
+import globals
+
 class Inventory:
     def __init__(self, items=None, capacity=None):
         self.items = items or []
@@ -10,10 +12,14 @@ class Inventory:
         return "Inventory"
     
     def add(self, item):
-        if len(self.items) < self.capacity:
+        if self.capacity is None:
             self.items.append(item)
-        else:
-            print("Inventory is full.")
+                              
+        else: 
+            if len(self.items) < self.capacity:
+                self.items.append(item)
+            else:
+                print("Inventory is full.")
     
     def remove(self, item):
         if item in self.items:
@@ -21,11 +27,6 @@ class Inventory:
             print(f"{item.name} removed from inventory.")
         else:
             print(f"{item.name} is not in inventory.")
-    
-    def show(self):
-        print("Inventory:")
-        for item in self.items:
-            print(item)
     
     def increase_capacity(self, amount):
         self.capacity += amount
@@ -41,4 +42,13 @@ class Inventory:
             player.inventory.add(item)
             self.items.remove(item)
             return f"{item.name} added to inventory."
+    
+    def drop(self, item):
+        if item in globals.player.inventory.items:
+            self.items.append(item)
+            globals.player.inventory.remove(item)
+            globals.player.location.inventory.add(item)
+            return f"{item.name} dropped."
+        else:
+            return f"{item.name} is not in inventory."
         

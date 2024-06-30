@@ -89,6 +89,8 @@ def game_setup():
         "attack": command.AttackCommand(tag='player'),
         "fight": command.FightCommand(tag='fight'),
         "flee": command.FleeCommand(tag='player'),
+        "inventory": command.InventoryCommand('player'),
+        "drop": command.DropCommand('player'),
 
         
         # "buy": Command.BuyCommand("Buy", "Buy an item"),
@@ -106,6 +108,7 @@ def game_setup():
         "info": command.InfoCommand('system', globals.player),
         "quit": command.QuitCommand('system', globals.player),
         "sleep": command.SleepCommand('player', globals.player),
+        "inventory": command.InventoryCommand('player'),
     }
 
     globals.combat_commands = {
@@ -118,7 +121,7 @@ def game_setup():
         "Stick": Item(name="Stick", description="A small stick"),
         "Stone": Item(name="Stone", description="A small stone"),
         "Coin": Item(name="Coin", description="A shiny gold coin", price=1),
-        "Backpack": Container(name="Backpack", description="A small backpack", capacity=5, equipable=True),
+        "Backpack": Container(name="Backpack", description="A small backpack", capacity=5, equipable=True, items=['Stick', 'Stone']),
     }
     globals.npcs = {
         "bryn": NPC(name='Bryn', description='A mystical lady', location='Town', health=10, role='Shopkeeper', attitude='friendly', status='alive', dialogue_tree=dialogue_tree, damage=5),

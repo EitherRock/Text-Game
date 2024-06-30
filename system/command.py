@@ -177,3 +177,32 @@ class FleeCommand(Command):
         super().__init__("Flee", "Flee from combat", tag, self.execute)
     def execute(self, player, *args, **kwargs):
         globals.combat.flee()
+
+class InventoryCommand(Command):
+    def __init__(self, tag):
+        super().__init__("Inventory", "Display player's inventory", tag, self.execute)
+    def execute(self, player):
+        util.clear_terminal()
+        globals.player.show_inventory()
+
+class DropCommand(Command):
+    def __init__(self, tag):
+        super().__init__("Drop", "Drop an item", tag, self.execute)
+    def execute(self, player, *args, **kwargs):
+        if not args:
+            util.clear_terminal()
+            print("You must specify an item to drop.")
+            return
+        
+        item_name = args[0]
+        player = globals.player
+        valid_item = False
+        for item in player.inventory.items:
+            if item_name == item.name:
+                valid_item = True
+                globals.player.inventory.drop(item)
+                break
+
+        if not valid_item:
+            util.clear_terminal()
+            print(f"No item named {item_name} found.\n")
